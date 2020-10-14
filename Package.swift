@@ -5,6 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "swift-log-papertrail",
+    platforms: [.iOS(.v9)],
     products: [
         .library(
             name: "PapertrailLogHandler",

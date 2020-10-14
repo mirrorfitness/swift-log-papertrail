@@ -77,7 +77,7 @@ class PapertrailSocketClient: NSObject {
         message.components(separatedBy: "\n")
             .map { m -> String in
                 let message = "<\(calculatePriority(with: severity))>1 \(dateString) \(senderName) \(programName) - - - \(m)\n"
-                print(message)
+                print("*** message: \(message)")
                 return message
             }
             .compactMap { $0.data(using: .utf8) }
