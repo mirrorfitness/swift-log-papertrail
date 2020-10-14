@@ -48,7 +48,7 @@ public struct PapertrailLogHandler: LogHandler {
         if !metadata.isEmpty, let string = prettify(metadata) {
             metadataString = " -- \(string)"
         }
-        queue.add(message: "[\(levelString)] \(message.description)\(metadataString)")
+        queue.add(message: "[\(levelString)] \(message.description)\(metadataString)", severity: level)
     }
 
     public subscript(metadataKey metadataKey: String) -> Logger.Metadata.Value? {

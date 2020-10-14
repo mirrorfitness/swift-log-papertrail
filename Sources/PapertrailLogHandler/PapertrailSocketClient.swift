@@ -1,5 +1,6 @@
 import Foundation
 import CocoaAsyncSocket
+import Logging
 
 protocol PapertrailSocketClientDelegate: class {
     func didChangeConnectionStatus(client: PapertrailSocketClient, connectionStatus: PapertrailSocketClient.ConnectionStatus)
@@ -58,7 +59,7 @@ class PapertrailSocketClient: NSObject {
         }
     }
 
-    func send(message: String, date: Date = Date()) {
+    func send(message: String, date: Date = Date(), severity: Logger.Level) {
         if host == "" || port == 0 {
             return
         }
@@ -71,11 +72,33 @@ class PapertrailSocketClient: NSObject {
         }
 
         let dateString = dateFormatter.string(from: date)
+        
 
         message.components(separatedBy: "\n")
-            .map { "<22>1 \(dateString) \(senderName) \(programName) - - - \($0)\n" }
+            .map { m -> String in
+                let message = "<\(calculatePriority(with: severity))>1 \(dateString) \(senderName) \(programName) - - - \(m)\n"
+                print(message)
+                return message
+            }
             .compactMap { $0.data(using: .utf8) }
             .forEach { tcpSocket.write($0, withTimeout: -1, tag: 1) }
+    }
+    
+    private func calculatePriority(with severity: Logger.Level) -> Int {
+        let facilityValue = 1
+        var severityValue: Int = 0
+        switch severity {
+        case .error:
+            severityValue = 3
+        case .warning:
+            severityValue = 4
+        case .info:
+            severityValue = 6
+        default:
+            severityValue = 7
+        }
+        
+        return facilityValue * 8 + severityValue
     }
 }
 

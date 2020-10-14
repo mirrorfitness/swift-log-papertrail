@@ -6,10 +6,12 @@
 //
 
 import Foundation
+import Logging
 
 struct QueueItem {
     let message: String
     let date: Date
+    let severity: Logger.Level
 }
 
 class Queue: PapertrailSocketClientDelegate {
@@ -21,9 +23,9 @@ class Queue: PapertrailSocketClientDelegate {
         socketClient.delegate = self
     }
 
-    func add(message: String) {
+    func add(message: String, severity: Logger.Level) {
         let wasEmpty = items.isEmpty
-        items.append(QueueItem(message: message, date: Date()))
+        items.append(QueueItem(message: message, date: Date(), severity: severity))
         if wasEmpty {
             sendMessages()
         }
@@ -32,7 +34,7 @@ class Queue: PapertrailSocketClientDelegate {
     private func sendMessages() {
         if !items.isEmpty, socketClient.connectionStatus == .connected {
             for item in items {
-                socketClient.send(message: item.message, date: item.date)
+                socketClient.send(message: item.message, date: item.date, severity: item.severity)
             }
             items.removeAll()
         }
