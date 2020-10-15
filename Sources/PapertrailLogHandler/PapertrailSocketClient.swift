@@ -39,8 +39,8 @@ class PapertrailSocketClient: NSObject {
         super.init()
         tcpSocket = GCDAsyncSocket(
             delegate: self,
-            delegateQueue: DispatchQueue(label: "nl.esites.swift-log.papertrail-delegate"),
-            socketQueue: DispatchQueue(label: "nl.esites.swift-log.papertrail-socket"))
+            delegateQueue: DispatchQueue.main,
+            socketQueue: DispatchQueue.main)
         self.host = host
         self.port = port
         self.senderName = senderName
@@ -81,7 +81,10 @@ class PapertrailSocketClient: NSObject {
                 return message
             }
             .compactMap { $0.data(using: .utf8) }
-            .forEach { tcpSocket.write($0, withTimeout: -1, tag: 1) }
+            .forEach {
+                print("*** sending message over tcp")
+                tcpSocket.write($0, withTimeout: -1, tag: 1)
+            }
     }
     
     private func calculatePriority(with severity: Logger.Level) -> Int {
